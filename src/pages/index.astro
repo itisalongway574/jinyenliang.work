@@ -23,18 +23,33 @@ const { marqueeItemsLeft, marqueeItemsRight, marqueeItemsMobile } =
 <BaseLayout>
     <main class="relative min-h-screen">
         <aside
-            class="fixed left-0 top-0 flex h-screen w-1/3 flex-col justify-between px-6 py-10 md:w-[30%]"
+            class="fixed select-none left-0 top-0 flex h-screen w-2/3 md:w-1/3 flex-col justify-between px-6 py-8 md:w-[30%]"
         >
-            <div class="space-y-4">
-                <h1 class="text-3xl tracking-wide">JIN YEN-LIANG</h1>
-                <p class="text-sm">web design &amp; fronted-end develop</p>
+            <div class="space-y-2">
+                <h1
+                    class="text-[clamp(2.5rem,4vw,4rem)] text-pretty leading-[1] tracking-[-0.02em]"
+                >
+                    JIN
+                    <span class="text-nowrap">YEN-LIANG</span>
+                </h1>
+                <h2
+                    class="text-[clamp(1.125rem,1.5vw,2rem)] leading-[1.2] tracking-[-0.01em]"
+                >
+                    web design &
+                    <span class="text-nowrap">fronted-end develop</span>
+                </h2>
             </div>
-            <div class="flex gap-3 text-xs">
-                <span>instagram</span>
+            <div class="flex gap-1 text-xs">
+                <a target="_blank" href="https://www.instagram.com/jinyenliang/"
+                    >instagram</a
+                >
                 <span>/</span>
-                <span>threads</span>
+                <a target="_blank" href="https://www.threads.com/@jinyenliang"
+                    >threads</a
+                >
                 <span>/</span>
-                <span>e-mail</span>
+                <a target="_blank" href="mailto:wadejin1996@gmail.com">e-mail</a
+                >
             </div>
         </aside>
         <section
@@ -60,7 +75,7 @@ const { marqueeItemsLeft, marqueeItemsRight, marqueeItemsMobile } =
                     class="group/marquee relative h-[100dvh] w-full overflow-hidden"
                 >
                     <ul
-                        class="flex flex-col gap-6 will-change-transform animate-[marquee-vertical_26s_linear_infinite]"
+                        class="flex flex-col gap-6 will-change-transform animate-[marquee-vertical_60s_linear_infinite]"
                     >
                         {
                             marqueeItemsMobile.map((item) => (
