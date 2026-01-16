@@ -8,18 +8,24 @@ import img3 from "../assets/img-3.jpg";
 import img4 from "../assets/img-4.jpg";
 import img5 from "../assets/img-5.jpg";
 
+// 來源圖片池：後續可替換為資料來源或 CMS
 const images = [img1, img2, img3, img4, img5];
+// 總項目數（桌機會分成左右兩欄，手機合併）
 const totalItems = 20;
+// 產生示意資料（每筆包含圖片、標題與寬度）
 const items = Array.from({ length: totalItems }, (_, index) => ({
     img: images[index % images.length],
     title: `This is the ${index + 1} project`,
     width: Math.floor(50 + Math.random() * 51),
 }));
+// 桌機左右欄分半
 const splitIndex = Math.floor(items.length / 2);
 const leftItems = items.slice(0, splitIndex);
 const rightItems = items.slice(splitIndex);
+// marquee 以「兩套同樣的 item」形成循環
 const marqueeItemsLeft = [...leftItems, ...leftItems];
 const marqueeItemsRight = [...rightItems, ...rightItems];
+// 手機版合併成同一欄
 const marqueeItemsMobile = [...items, ...items];
 ---
 
@@ -43,10 +49,12 @@ const marqueeItemsMobile = [...items, ...items];
         <section
             class="ml-[33.333%] h-screen w-[66.666%] md:ml-[30%] md:w-[70%]"
         >
+            <!-- 桌機左右欄：JS 控制進度 + wheel/drag/touch 共用邏輯 -->
             <div
                 class="marquee-drag-area hidden h-full gap-6 md:flex"
                 data-marquee-group="desktop"
             >
+                <!-- 左欄：自動往上，wheel 向下時會反向 -->
                 <div
                     class="group/marquee relative h-[100dvh] w-1/2 overflow-hidden"
                     data-marquee="css"
@@ -63,6 +71,7 @@ const marqueeItemsMobile = [...items, ...items];
                         </ul>
                     </div>
                 </div>
+                <!-- 右欄：自動往下，wheel 向下時會反向 -->
                 <div
                     class="group/marquee relative h-[100dvh] w-1/2 overflow-hidden"
                     data-marquee="css-reverse"
@@ -83,6 +92,7 @@ const marqueeItemsMobile = [...items, ...items];
                     </div>
                 </div>
             </div>
+            <!-- 手機版：純 CSS animation，維持合併清單 -->
             <div class="h-full md:hidden">
                 <div
                     class="group/marquee relative h-[100dvh] w-full overflow-hidden"
@@ -103,23 +113,29 @@ const marqueeItemsMobile = [...items, ...items];
     <script>
         // @ts-nocheck
         // 這段為純 JS，不做 TS 檢查
+        // DEBUG: 可在 console 設定 window.__MARQUEE_DEBUG__ = true
         const DEBUG = Boolean(/** @type {any} */ (window).__MARQUEE_DEBUG__);
+        // wheel/drag/touch 影響係數與慣性參數
         const WHEEL_FORCE = 0.03;
         const FRICTION = 0.9;
         const MAX_VELOCITY = 2.2;
+        // 自動播放完整一輪的時長（毫秒）
         const DURATION = 60000;
 
         /**
          * @param {number} value
          * @param {number} max
          */
+        // 將數值包回 0 ~ max 的範圍，避免進度無限累積
         const wrapValue = (value, max) => {
             if (!max) return 0;
             return ((value % max) + max) % max;
         };
 
+        // 速度夾限，避免瞬間過快
         const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
+        // 確保清單高度至少大於視窗高度 * 2，避免循環時出現空白
         const ensureLoopHeight = (wrapper, list) => {
             const minHeight = wrapper.clientHeight * 2;
             let guard = 0;
@@ -144,6 +160,7 @@ const marqueeItemsMobile = [...items, ...items];
          * @param {HTMLElement | null} root
          * @param {number} direction
          */
+        // 建立單欄控制器：保存進度、速度、方向與 DOM 參考
         const createMarqueeController = (root, autoDirection = 1) => {
             if (!root) return null;
             const wrapper = root.querySelector(".js-marquee-css");
@@ -155,11 +172,15 @@ const marqueeItemsMobile = [...items, ...items];
             const controller = {
                 wrapper,
                 list,
+                // 自動播放方向（1: 往下, -1: 往上）
                 autoDirection,
+                // wheel/drag/touch 方向與自動相反
                 wheelDirection: autoDirection * -1,
                 maxOffset: 0,
                 offset: 0,
+                // wheel/drag/touch 造成的額外速度
                 velocity: 0,
+                // 自動播放速度（px/ms）
                 autoSpeed: 0,
             };
 
@@ -197,6 +218,7 @@ const marqueeItemsMobile = [...items, ...items];
             const group = document.body;
             if (!group) return;
 
+            // 左右欄控制器（方向相反）
             const controllers = [
                 createMarqueeController(
                     document.querySelector('[data-marquee="css"]'),
@@ -210,6 +232,7 @@ const marqueeItemsMobile = [...items, ...items];
 
             if (!controllers.length) return;
 
+            // 將 wheel/drag/touch 的垂直位移套用到兩欄（方向相反）
             const applyDelta = (deltaY) => {
                 controllers.forEach((controller) => {
                     controller.velocity = clamp(
@@ -226,6 +249,7 @@ const marqueeItemsMobile = [...items, ...items];
             let rafId = null;
             let lastTime = 0;
 
+            // 每一幀：自動播放 + 慣性速度
             const tick = (now) => {
                 rafId = null;
                 if (!lastTime) lastTime = now;
@@ -253,11 +277,13 @@ const marqueeItemsMobile = [...items, ...items];
             };
 
             /** @param {WheelEvent} event */
+            // wheel 事件
             const onWheel = (event) => {
                 event.preventDefault();
                 applyDelta(event.deltaY);
             };
 
+            // touch 事件（手機）
             let touchLastY = 0;
             const onTouchStart = (event) => {
                 const touch = event.touches?.[0];
@@ -273,6 +299,7 @@ const marqueeItemsMobile = [...items, ...items];
                 applyDelta(deltaY);
             };
 
+            // drag 事件（桌機滑鼠）
             let isDragging = false;
             let dragLastY = 0;
             const onPointerDown = (event) => {
