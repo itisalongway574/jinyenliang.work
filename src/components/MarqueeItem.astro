@@ -3,7 +3,7 @@ import { Image } from "astro:assets";
 
 const { item, liClass = "" } = Astro.props;
 
-const liClassName = ["flex flex-col relative group/item", liClass]
+const liClassName = ["flex flex-col relative group/item max-h-[60vh]", liClass]
     .filter(Boolean)
     .join(" ");
 const imgClassName = [
