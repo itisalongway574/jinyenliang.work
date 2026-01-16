@@ -55,21 +55,21 @@ const { marqueeItemsLeft, marqueeItemsRight, marqueeItemsMobile } =
         <section
             class="ml-[33.333%] h-screen w-[66.666%] md:ml-[30%] md:w-[70%]"
         >
-            <!-- 桌機左右欄：JS 控制進度 + wheel/drag/touch 共用邏輯 -->
+            {/* 桌機左右欄：JS 控制進度 + wheel/drag/touch 共用邏輯 */}
             <div
                 class="marquee-drag-area hidden h-full gap-6 md:flex"
                 data-marquee-group="desktop"
             >
-                <!-- 左欄：自動往上，wheel 向下時會反向 -->
+                {/* 左欄：自動往上，wheel 向下時會反向 */}
                 <MarqueeColumn items={marqueeItemsLeft} dataMarquee="css" />
-                <!-- 右欄：自動往下，wheel 向下時會反向 -->
+                {/* 右欄：自動往下，wheel 向下時會反向 */}
                 <MarqueeColumn
                     items={marqueeItemsRight}
                     dataMarquee="css-reverse"
                     liClass="self-end"
                 />
             </div>
-            <!-- 手機版：純 CSS animation，維持合併清單 -->
+            {/* 手機版：純 CSS animation，維持合併清單 */}
             <div class="h-full md:hidden">
                 <div
                     class="group/marquee relative h-[100dvh] w-full overflow-hidden"

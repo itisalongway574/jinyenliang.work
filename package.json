@@ -15,5 +15,8 @@
     "astro": "^5.16.0",
     "sharp": "^0.33.5",
     "tailwindcss": "^4.1.18"
+  },
+  "devDependencies": {
+    "astro-remove-comments": "^0.0.1"
   }
 }
