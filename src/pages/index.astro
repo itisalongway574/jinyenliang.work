@@ -1,23 +1,13 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import MarqueeColumn from "../components/MarqueeColumn.astro";
-import MarqueeItem from "../components/MarqueeItem.astro";
 import "../styles/global.css";
-import img1 from "../assets/img-1.jpg";
-import img2 from "../assets/img-2.jpg";
-import img3 from "../assets/img-3.jpg";
-import img4 from "../assets/img-4.jpg";
-import img5 from "../assets/img-5.jpg";
-import { createMarqueeItems } from "../utils/marqueeData.js";
+import {
+    marqueeItemsLeft,
+    marqueeItemsRight,
+    marqueeItemsMobile,
+} from "../data/marqueeProjects.js";
 import marqueeControllerUrl from "../scripts/marqueeController.js?url";
-
-// 來源圖片池：後續可替換為資料來源或 CMS
-const images = [img1, img2, img3, img4, img5];
-// 總項目數（桌機會分成左右兩欄，手機合併）
-const totalItems = 20;
-// 資料層：生成清單與分欄結果
-const { marqueeItemsLeft, marqueeItemsRight, marqueeItemsMobile } =
-    createMarqueeItems({ images, totalItems });
 ---
 
 <BaseLayout>

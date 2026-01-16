@@ -39,7 +39,7 @@ const ensureLoopHeight = (wrapper, list, debug = false) => {
 const createMarqueeController = ({
     root,
     autoDirection = 1,
-    duration = 60000,
+    speedVhPerSecond = 0.15, // 每秒滾動多少 vh（0.15 = 15vh/秒）
     debug = false,
 }) => {
     if (!root) return null;
@@ -67,8 +67,10 @@ const createMarqueeController = ({
     const updateMetrics = () => {
         controller.maxOffset = list.scrollHeight / 2;
         controller.offset = wrapValue(controller.offset, controller.maxOffset);
-        // 每個 duration 時間走完整個 maxOffset，形成固定循環速度
-        controller.autoSpeed = controller.maxOffset / duration;
+        // 基於 vh 的固定速度：每秒滾動 speedVhPerSecond * 視窗高度
+        // 轉成 px/ms：(vh * innerHeight) / 1000
+        controller.autoSpeed =
+            (speedVhPerSecond * window.innerHeight) / 1000;
         wrapper.style.setProperty(
             "--marquee-offset",
             `${-controller.offset}px`,
@@ -76,6 +78,7 @@ const createMarqueeController = ({
         if (debug) {
             console.log("[marquee-css] metrics", {
                 maxOffset: controller.maxOffset,
+                autoSpeed: controller.autoSpeed,
             });
         }
     };
@@ -103,7 +106,7 @@ const initMarquee = ({
     wheelForce = 0.03,
     friction = 0.9,
     maxVelocity = 2.2,
-    duration = 60000,
+    speedVhPerSecond = 0.15, // 每秒滾動 15vh（可調整）
     debug = false,
 } = {}) => {
     // group 為事件綁定範圍（預設 body，也可指定容器）
@@ -118,20 +121,20 @@ const initMarquee = ({
         createMarqueeController({
             root: document.querySelector(leftSelector),
             autoDirection: 1,
-            duration,
+            speedVhPerSecond,
             debug,
         }),
         createMarqueeController({
             root: document.querySelector(rightSelector),
             autoDirection: -1,
-            duration,
+            speedVhPerSecond,
             debug,
         }),
         includeMobile
             ? createMarqueeController({
                   root: document.querySelector(mobileSelector),
                   autoDirection: 1,
-                  duration,
+                  speedVhPerSecond,
                   debug,
               })
             : null,
