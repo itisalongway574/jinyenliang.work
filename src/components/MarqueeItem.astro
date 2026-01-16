@@ -5,7 +5,7 @@ const liClassName = ["flex flex-col relative group/item", liClass]
     .filter(Boolean)
     .join(" ");
 const imgClassName = [
-    "block h-auto w-full",
+    "block h-auto w-full marquee-no-drag select-none",
     "group-hover/item:brightness-30 group-hover/item:grayscale-100",
     "transition-all duration-300",
 ].join(" ");
@@ -18,7 +18,12 @@ const titleClassName = [
 
 <li class={liClassName} style={`width: ${item.width}%`}>
     <div class="relative h-full w-full">
-        <img class={imgClassName} src={item.img.src} alt={item.title} />
+        <img
+            class={imgClassName}
+            src={item.img.src}
+            alt={item.title}
+            draggable="false"
+        />
     </div>
     <p class={titleClassName}>{item.title}</p>
 </li>

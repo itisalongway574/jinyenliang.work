@@ -15,6 +15,21 @@ body {
 	overflow: hidden;
 }
 
+.is-dragging,
+.is-dragging * {
+	cursor: grabbing;
+}
+
+.marquee-drag-area {
+	cursor: grab;
+}
+
+.marquee-no-drag {
+	-webkit-user-drag: none;
+	user-select: none;
+	-webkit-touch-callout: none;
+}
+
 @layer utilities {
 	@keyframes marquee-vertical {
 		0% {
@@ -24,5 +39,13 @@ body {
 		100% {
 			transform: translateY(-50%);
 		}
+	}
+
+	.marquee-wheel {
+		transform: translateY(var(--marquee-offset, 0px));
+	}
+
+	.marquee-reverse {
+		animation-direction: reverse;
 	}
 }

@@ -9,12 +9,18 @@ import img4 from "../assets/img-4.jpg";
 import img5 from "../assets/img-5.jpg";
 
 const images = [img1, img2, img3, img4, img5];
-const items = Array.from({ length: 20 }, (_, index) => ({
+const totalItems = 20;
+const items = Array.from({ length: totalItems }, (_, index) => ({
     img: images[index % images.length],
     title: `This is the ${index + 1} project`,
     width: Math.floor(50 + Math.random() * 51),
 }));
-const marqueeItems = [...items, ...items];
+const splitIndex = Math.floor(items.length / 2);
+const leftItems = items.slice(0, splitIndex);
+const rightItems = items.slice(splitIndex);
+const marqueeItemsLeft = [...leftItems, ...leftItems];
+const marqueeItemsRight = [...rightItems, ...rightItems];
+const marqueeItemsMobile = [...items, ...items];
 ---
 
 <BaseLayout>
@@ -37,32 +43,44 @@ const marqueeItems = [...items, ...items];
         <section
             class="ml-[33.333%] h-screen w-[66.666%] md:ml-[30%] md:w-[70%]"
         >
-            <div class="hidden h-full gap-6 md:flex">
+            <div
+                class="marquee-drag-area hidden h-full gap-6 md:flex"
+                data-marquee-group="desktop"
+            >
                 <div
                     class="group/marquee relative h-[100dvh] w-1/2 overflow-hidden"
+                    data-marquee="css"
                 >
-                    <ul
-                        class="flex flex-col gap-6 will-change-transform animate-[marquee-vertical_60s_linear_infinite] group-hover/marquee:[animation-play-state:paused]"
+                    <div
+                        class="js-marquee-css marquee-wheel will-change-transform"
                     >
-                        {
-                            marqueeItems.map((item) => (
-                                <MarqueeItem item={item} />
-                            ))
-                        }
-                    </ul>
+                        <ul class="flex flex-col gap-6 will-change-transform">
+                            {
+                                marqueeItemsLeft.map((item) => (
+                                    <MarqueeItem item={item} />
+                                ))
+                            }
+                        </ul>
+                    </div>
                 </div>
                 <div
                     class="group/marquee relative h-[100dvh] w-1/2 overflow-hidden"
+                    data-marquee="css-reverse"
                 >
-                    <ul
-                        class="flex flex-col gap-6 will-change-transform animate-[marquee-vertical_60s_linear_infinite] group-hover/marquee:[animation-play-state:paused]"
+                    <div
+                        class="js-marquee-css marquee-wheel will-change-transform"
                     >
-                        {
-                            marqueeItems.map((item) => (
-                                <MarqueeItem item={item} liClass="self-end" />
-                            ))
-                        }
-                    </ul>
+                        <ul class="flex flex-col gap-6 will-change-transform">
+                            {
+                                marqueeItemsRight.map((item) => (
+                                    <MarqueeItem
+                                        item={item}
+                                        liClass="self-end"
+                                    />
+                                ))
+                            }
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div class="h-full md:hidden">
@@ -70,10 +88,10 @@ const marqueeItems = [...items, ...items];
                     class="group/marquee relative h-[100dvh] w-full overflow-hidden"
                 >
                     <ul
-                        class="flex flex-col gap-6 will-change-transform animate-[marquee-vertical_26s_linear_infinite] group-hover/marquee:[animation-play-state:paused]"
+                        class="flex flex-col gap-6 will-change-transform animate-[marquee-vertical_26s_linear_infinite]"
                     >
                         {
-                            marqueeItems.map((item) => (
+                            marqueeItemsMobile.map((item) => (
                                 <MarqueeItem item={item} liClass="self-end" />
                             ))
                         }
@@ -82,4 +100,225 @@ const marqueeItems = [...items, ...items];
             </div>
         </section>
     </main>
+    <script>
+        // @ts-nocheck
+        // 這段為純 JS，不做 TS 檢查
+        const DEBUG = Boolean(/** @type {any} */ (window).__MARQUEE_DEBUG__);
+        const WHEEL_FORCE = 0.03;
+        const FRICTION = 0.9;
+        const MAX_VELOCITY = 2.2;
+        const DURATION = 60000;
+
+        /**
+         * @param {number} value
+         * @param {number} max
+         */
+        const wrapValue = (value, max) => {
+            if (!max) return 0;
+            return ((value % max) + max) % max;
+        };
+
+        const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+        const ensureLoopHeight = (wrapper, list) => {
+            const minHeight = wrapper.clientHeight * 2;
+            let guard = 0;
+            while (list.scrollHeight < minHeight && guard < 5) {
+                const items = Array.from(list.children);
+                const fragment = document.createDocumentFragment();
+                items.forEach((item) =>
+                    fragment.appendChild(item.cloneNode(true)),
+                );
+                list.appendChild(fragment);
+                guard += 1;
+            }
+            if (DEBUG) {
+                console.log("[marquee-css] ensure height", {
+                    height: list.scrollHeight,
+                    minHeight,
+                });
+            }
+        };
+
+        /**
+         * @param {HTMLElement | null} root
+         * @param {number} direction
+         */
+        const createMarqueeController = (root, autoDirection = 1) => {
+            if (!root) return null;
+            const wrapper = root.querySelector(".js-marquee-css");
+            const list = wrapper?.querySelector("ul");
+            if (!wrapper || !list) return null;
+
+            ensureLoopHeight(wrapper, list);
+
+            const controller = {
+                wrapper,
+                list,
+                autoDirection,
+                wheelDirection: autoDirection * -1,
+                maxOffset: 0,
+                offset: 0,
+                velocity: 0,
+                autoSpeed: 0,
+            };
+
+            const updateMetrics = () => {
+                controller.maxOffset = list.scrollHeight / 2;
+                controller.offset = wrapValue(
+                    controller.offset,
+                    controller.maxOffset,
+                );
+                controller.autoSpeed = controller.maxOffset / DURATION;
+                wrapper.style.setProperty(
+                    "--marquee-offset",
+                    `${-controller.offset}px`,
+                );
+                if (DEBUG) {
+                    console.log("[marquee-css] metrics", {
+                        maxOffset: controller.maxOffset,
+                    });
+                }
+            };
+
+            window.addEventListener("resize", updateMetrics);
+            if ("ResizeObserver" in window) {
+                const ro = new ResizeObserver(updateMetrics);
+                ro.observe(list);
+            } else {
+                window.addEventListener("load", updateMetrics);
+            }
+
+            updateMetrics();
+            return controller;
+        };
+
+        const init = () => {
+            const group = document.body;
+            if (!group) return;
+
+            const controllers = [
+                createMarqueeController(
+                    document.querySelector('[data-marquee="css"]'),
+                    1,
+                ),
+                createMarqueeController(
+                    document.querySelector('[data-marquee="css-reverse"]'),
+                    -1,
+                ),
+            ].filter(Boolean);
+
+            if (!controllers.length) return;
+
+            const applyDelta = (deltaY) => {
+                controllers.forEach((controller) => {
+                    controller.velocity = clamp(
+                        controller.velocity +
+                            deltaY * WHEEL_FORCE * controller.wheelDirection,
+                        -MAX_VELOCITY,
+                        MAX_VELOCITY,
+                    );
+                });
+                if (!rafId) rafId = requestAnimationFrame(tick);
+            };
+
+            /** @type {number | null} */
+            let rafId = null;
+            let lastTime = 0;
+
+            const tick = (now) => {
+                rafId = null;
+                if (!lastTime) lastTime = now;
+                const delta = Math.min(now - lastTime, 50);
+                lastTime = now;
+                let active = false;
+                controllers.forEach((controller) => {
+                    if (!controller.maxOffset) return;
+                    const baseMove =
+                        controller.autoSpeed * controller.autoDirection * delta;
+                    const wheelMove = controller.velocity * delta;
+                    controller.offset = wrapValue(
+                        controller.offset + baseMove + wheelMove,
+                        controller.maxOffset,
+                    );
+                    controller.velocity *= Math.pow(FRICTION, delta / 16.67);
+                    controller.wrapper.style.setProperty(
+                        "--marquee-offset",
+                        `${-controller.offset}px`,
+                    );
+                    active = true;
+                });
+
+                if (active) rafId = requestAnimationFrame(tick);
+            };
+
+            /** @param {WheelEvent} event */
+            const onWheel = (event) => {
+                event.preventDefault();
+                applyDelta(event.deltaY);
+            };
+
+            let touchLastY = 0;
+            const onTouchStart = (event) => {
+                const touch = event.touches?.[0];
+                if (!touch) return;
+                touchLastY = touch.clientY;
+            };
+            const onTouchMove = (event) => {
+                const touch = event.touches?.[0];
+                if (!touch) return;
+                event.preventDefault();
+                const deltaY = touchLastY - touch.clientY;
+                touchLastY = touch.clientY;
+                applyDelta(deltaY);
+            };
+
+            let isDragging = false;
+            let dragLastY = 0;
+            const onPointerDown = (event) => {
+                if (event.pointerType !== "mouse") return;
+                isDragging = true;
+                dragLastY = event.clientY;
+                document.body.classList.add("is-dragging");
+            };
+            const onPointerMove = (event) => {
+                if (!isDragging) return;
+                event.preventDefault();
+                const deltaY = dragLastY - event.clientY;
+                dragLastY = event.clientY;
+                applyDelta(deltaY);
+            };
+            const onPointerUp = () => {
+                isDragging = false;
+                document.body.classList.remove("is-dragging");
+            };
+
+            const onDragStart = (event) => {
+                const target = event.target;
+                if (target && target.tagName === "IMG") {
+                    event.preventDefault();
+                }
+            };
+
+            group.addEventListener("wheel", onWheel, { passive: false });
+            group.addEventListener("touchstart", onTouchStart, {
+                passive: true,
+            });
+            group.addEventListener("touchmove", onTouchMove, {
+                passive: false,
+            });
+            group.addEventListener("dragstart", onDragStart);
+            group.addEventListener("pointerdown", onPointerDown);
+            window.addEventListener("pointerup", onPointerUp);
+            window.addEventListener("pointercancel", onPointerUp);
+            window.addEventListener("pointermove", onPointerMove);
+            if (!rafId) rafId = requestAnimationFrame(tick);
+        };
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", init);
+        } else {
+            init();
+        }
+    </script>
 </BaseLayout>
