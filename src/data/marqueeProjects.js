@@ -88,8 +88,24 @@ const createItemsFromProjects = () =>
         }));
     });
 
+/**
+ * Fisher-Yates 洗牌
+ * 回傳新的陣列，避免改動原陣列
+ */
+const shuffleItems = (source) => {
+    const items = [...source];
+    for (let i = items.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [items[i], items[j]] = [items[j], items[i]];
+    }
+    return items;
+};
+
+// Debug 開關：在 .env 設定 PUBLIC_DEBUG_MARQUEE=true 可看到洗牌結果
+const DEBUG_MARQUEE = import.meta.env?.PUBLIC_DEBUG_MARQUEE === "true";
+
 // 產生分欄與循環清單
-const items = createItemsFromProjects();
+const items = shuffleItems(createItemsFromProjects());
 const splitIndex = Math.floor(items.length / 2);
 const leftItems = items.slice(0, splitIndex);
 const rightItems = items.slice(splitIndex);
@@ -97,3 +113,8 @@ const rightItems = items.slice(splitIndex);
 export const marqueeItemsLeft = [...leftItems, ...leftItems];
 export const marqueeItemsRight = [...rightItems, ...rightItems];
 export const marqueeItemsMobile = [...items, ...items];
+
+if (DEBUG_MARQUEE) {
+    console.debug("[marquee] items total:", items.length);
+    console.debug("[marquee] sample titles:", items.slice(0, 12).map((item) => item.title));
+}

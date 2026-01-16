@@ -15,7 +15,7 @@ const wrapperClassName = [
 ]
     .filter(Boolean)
     .join(" ");
-const listClassName = ["flex flex-col gap-6 will-change-transform", listClass]
+const listClassName = ["flex flex-col will-change-transform", listClass]
     .filter(Boolean)
     .join(" ");
 ---
@@ -23,9 +23,7 @@ const listClassName = ["flex flex-col gap-6 will-change-transform", listClass]
 <div class={wrapperClassName} data-marquee={dataMarquee}>
     <div class="js-marquee-css marquee-wheel will-change-transform">
         <ul class={listClassName}>
-            {items.map((item) => (
-                <MarqueeItem item={item} liClass={liClass} />
-            ))}
+            {items.map((item) => <MarqueeItem item={item} liClass={liClass} />)}
         </ul>
     </div>
 </div>
