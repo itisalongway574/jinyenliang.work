@@ -1,4 +1,6 @@
 ---
+import { Image } from "astro:assets";
+
 const { item, liClass = "" } = Astro.props;
 
 const liClassName = ["flex flex-col relative group/item", liClass]
@@ -18,11 +20,17 @@ const titleClassName = [
 
 <li class={liClassName} style={`width: ${item.width}%`}>
     <div class="relative h-full w-full">
-        <img
+        <Image
             class={imgClassName}
-            src={item.img.src}
+            src={item.img}
             alt={item.title}
-            draggable="false"
+            format="webp"
+            quality={80}
+            widths={[360, 540, 720, 960, 1200]}
+            sizes="(max-width: 640px) 80vw, (max-width: 1024px) 40vw, 30vw"
+            loading="lazy"
+            decoding="async"
+            draggable={false}
         />
     </div>
     <p class={titleClassName}>{item.title}</p>
