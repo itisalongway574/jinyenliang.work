@@ -3,6 +3,7 @@ const DEFAULT_SELECTORS = {
     group: "body",
     left: '[data-marquee="css"]',
     right: '[data-marquee="css-reverse"]',
+    mobile: '[data-marquee="mobile"]',
 };
 
 // 讓位移值在 0 ~ max 之間循環（避免無限累積）
@@ -97,6 +98,8 @@ const initMarquee = ({
     groupSelector = DEFAULT_SELECTORS.group,
     leftSelector = DEFAULT_SELECTORS.left,
     rightSelector = DEFAULT_SELECTORS.right,
+    mobileSelector = DEFAULT_SELECTORS.mobile,
+    includeMobile = true,
     wheelForce = 0.03,
     friction = 0.9,
     maxVelocity = 2.2,
@@ -124,6 +127,14 @@ const initMarquee = ({
             duration,
             debug,
         }),
+        includeMobile
+            ? createMarqueeController({
+                  root: document.querySelector(mobileSelector),
+                  autoDirection: 1,
+                  duration,
+                  debug,
+              })
+            : null,
     ].filter(Boolean);
 
     if (!controllers.length) return;

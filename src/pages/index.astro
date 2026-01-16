@@ -69,21 +69,14 @@ const { marqueeItemsLeft, marqueeItemsRight, marqueeItemsMobile } =
                     liClass="self-end"
                 />
             </div>
-            {/* 手機版：純 CSS animation，維持合併清單 */}
+            {/* 手機版：改為 JS 控制進度（可 touch/drag 改位移） */}
             <div class="h-full md:hidden">
-                <div
-                    class="group/marquee relative h-[100dvh] w-full overflow-hidden"
-                >
-                    <ul
-                        class="flex flex-col gap-6 will-change-transform animate-[marquee-vertical_60s_linear_infinite]"
-                    >
-                        {
-                            marqueeItemsMobile.map((item) => (
-                                <MarqueeItem item={item} liClass="self-end" />
-                            ))
-                        }
-                    </ul>
-                </div>
+                <MarqueeColumn
+                    items={marqueeItemsMobile}
+                    dataMarquee="mobile"
+                    liClass="self-end"
+                    wrapperClass="w-full"
+                />
             </div>
         </section>
     </main>
@@ -106,7 +99,6 @@ const { marqueeItemsLeft, marqueeItemsRight, marqueeItemsMobile } =
         }
 
         @layer utilities {
-            /* 手機版純 CSS：固定時間內向上位移 -50%，搭配清單重複達成循環 */
             @keyframes marquee-vertical {
                 0% {
                     transform: translateY(0);
