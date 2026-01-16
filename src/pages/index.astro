@@ -91,6 +91,7 @@ const { marqueeItemsLeft, marqueeItemsRight, marqueeItemsMobile } =
         }
 
         @layer utilities {
+            /* 手機版純 CSS：固定時間內向上位移 -50%，搭配清單重複達成循環 */
             @keyframes marquee-vertical {
                 0% {
                     transform: translateY(0);
@@ -101,6 +102,7 @@ const { marqueeItemsLeft, marqueeItemsRight, marqueeItemsMobile } =
                 }
             }
 
+            /* 桌機版 JS：透過 CSS 變數控制位移 */
             .marquee-wheel {
                 transform: translateY(var(--marquee-offset, 0px));
             }
