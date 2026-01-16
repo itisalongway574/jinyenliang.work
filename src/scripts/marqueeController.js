@@ -15,6 +15,49 @@ const wrapValue = (value, max) => {
 // 速度限制在最小/最大值之間
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
+// marquee 圖片寬度隨機範圍（百分比）
+const MARQUEE_WIDTH_RANGE = { min: 50, max: 100 };
+
+// Fisher-Yates 洗牌（回傳新陣列）
+const shuffleArray = (source) => {
+    const items = [...source];
+    for (let i = items.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [items[i], items[j]] = [items[j], items[i]];
+    }
+    return items;
+};
+
+// 重新打散清單順序，並給每個 item 隨機寬度
+const randomizeList = (
+    list,
+    { min = MARQUEE_WIDTH_RANGE.min, max = MARQUEE_WIDTH_RANGE.max, debug = false, label = "" } = {},
+) => {
+    const items = Array.from(list.children);
+    if (!items.length) {
+        if (debug) {
+            console.log("[marquee-css] randomize list skipped", { label });
+        }
+        return;
+    }
+    const shuffled = shuffleArray(items);
+    const fragment = document.createDocumentFragment();
+    shuffled.forEach((item) => {
+        const width = Math.floor(min + Math.random() * (max - min + 1));
+        item.style.width = `${width}%`;
+        item.dataset.randWidth = String(width);
+        fragment.appendChild(item);
+    });
+    list.appendChild(fragment);
+    if (debug) {
+        console.log("[marquee-css] randomize list", {
+            label,
+            count: shuffled.length,
+            widthRange: [min, max],
+        });
+    }
+};
+
 // 確保清單高度足夠，至少達到容器高度的 2 倍，才能無縫循環
 // 若不夠就複製現有項目追加（最多複製 5 次避免無限迴圈）
 const ensureLoopHeight = (wrapper, list, debug = false) => {
@@ -47,6 +90,12 @@ const createMarqueeController = ({
     const wrapper = root.querySelector(".js-marquee-css");
     const list = wrapper?.querySelector("ul");
     if (!wrapper || !list) return null;
+
+    // 每次重整都重新隨機排序與寬度
+    randomizeList(list, {
+        debug,
+        label: root.getAttribute("data-marquee") || "",
+    });
 
     ensureLoopHeight(wrapper, list, debug);
 
@@ -132,11 +181,11 @@ const initMarquee = ({
         }),
         includeMobile
             ? createMarqueeController({
-                  root: document.querySelector(mobileSelector),
-                  autoDirection: 1,
-                  speedVhPerSecond,
-                  debug,
-              })
+                root: document.querySelector(mobileSelector),
+                autoDirection: 1,
+                speedVhPerSecond,
+                debug,
+            })
             : null,
     ].filter(Boolean);
 
