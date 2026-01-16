@@ -12,9 +12,9 @@ const imgClassName = [
     "transition-all duration-300",
 ].join(" ");
 const titleClassName = [
-    "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+    "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full px-2 mx-auto",
     "opacity-0 group-hover/item:opacity-100 transition-opacity duration-300",
-    "text-[12px] leading-6 whitespace-nowrap overflow-hidden text-ellipsis",
+    "text-[12px] leading-[1.2] text-pretty overflow-hidden text-ellipsis select-none text-center",
 ].join(" ");
 ---
 
@@ -33,5 +33,8 @@ const titleClassName = [
             draggable={false}
         />
     </div>
-    <p class={titleClassName}>{item.title}</p>
+    <div class={`${titleClassName} flex flex-col gap-2`}>
+        {item.name_eng && <p class="text-sm leading-[1.1]">{item.name_eng}</p>}
+        {item.name_tc && <p>{item.name_tc}</p>}
+    </div>
 </li>

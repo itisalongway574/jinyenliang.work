@@ -155,7 +155,7 @@ const initMarquee = ({
     wheelForce = 0.03,
     friction = 0.9,
     maxVelocity = 2.2,
-    speedVhPerSecond = 0.15, // 每秒滾動 15vh（可調整）
+    speedVhPerSecond = 0.10, // 每秒滾動 15vh（可調整）
     debug = false,
 } = {}) => {
     // group 為事件綁定範圍（預設 body，也可指定容器）

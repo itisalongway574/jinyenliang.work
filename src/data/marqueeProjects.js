@@ -46,7 +46,8 @@ const getImagesFromFolder = (folder) => {
 /**
  * 以 project 為單位的資料
  * folder: 資料夾名稱（對應 src/assets/{folder}/）
- * name: 專案名稱
+ * name_eng: 專案英文名稱
+ * name_tc: 專案中文名稱
  * alt: 圖片 alt（選填，預設用 name）
  *
  * 圖片會自動偵測 folder 內所有 img-* 檔案
@@ -54,23 +55,27 @@ const getImagesFromFolder = (folder) => {
 const projects = [
     {
         folder: "gh-62nd",
-        name: "62nd Golden Horse Award Ceremony Website",
-        alt: "",
+        name_eng: "62nd Golden Horse Award Ceremony Website",
+        name_tc: "第62屆金馬獎頒獎典禮網站",
+        alt: "第62屆金馬獎頒獎典禮網站",
     },
     {
         folder: "gh-61st",
-        name: "61st Golden Horse Award Ceremony Website",
-        alt: "",
+        name_eng: "61st Golden Horse Award Ceremony Website",
+        name_tc: "第61屆金馬獎頒獎典禮網站",
+        alt: "第61屬金馬獎頒獎典禮網站",
     },
     {
         folder: "reporter",
-        name: "The Reporter",
-        alt: "",
+        name_eng: "The Reporter 10th Anniversary Website",
+        name_tc: "報導者10週年線上展覽",
+        alt: "報導者10週年線上展覽",
     },
     {
         folder: "sunset",
-        name: "Sunset Town",
-        alt: "",
+        name_eng: "Sunset Town Festival-Burn Out",
+        name_tc: "夕陽小鎮《燒胎祭》",
+        alt: "夕陽小鎮《燒胎祭》",
     },
 ];
 
@@ -80,8 +85,9 @@ const createItemsFromProjects = () =>
         const imgPaths = getImagesFromFolder(project.folder);
         return imgPaths.map((filename, index) => ({
             img: imageMap[filename],
-            title: project.name,
-            alt: project.alt || project.name,
+            name_eng: project.name_eng,
+            name_tc: project.name_tc,
+            alt: project.alt || project.name_eng,
             width: Math.floor(50 + Math.random() * 51),
             projectIndex,
             imageIndex: index,
