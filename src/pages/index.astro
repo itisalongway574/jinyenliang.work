@@ -1,16 +1,114 @@
 ---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import "../styles/global.css";
+import img1 from "../assets/img-1.jpg";
+import img2 from "../assets/img-2.jpg";
+import img3 from "../assets/img-3.jpg";
+import img4 from "../assets/img-4.jpg";
+import img5 from "../assets/img-5.jpg";
 
+const images = [img1, img2, img3, img4, img5];
+const items = Array.from({ length: 20 }, (_, index) => ({
+    img: images[index % images.length],
+    title: `This is the ${index + 1} project`,
+    width: Math.floor(50 + Math.random() * 51),
+}));
+const marqueeItems = [...items, ...items];
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout>
+    <main class="relative min-h-screen">
+        <aside
+            class="fixed left-0 top-0 flex h-screen w-1/3 flex-col justify-between px-6 py-10 md:w-[30%]"
+        >
+            <div class="space-y-4">
+                <h1 class="text-3xl tracking-wide">JIN YEN-LIANG</h1>
+                <p class="text-sm">web design &amp; fronted-end develop</p>
+            </div>
+            <div class="flex gap-3 text-xs">
+                <span>instagram</span>
+                <span>/</span>
+                <span>threads</span>
+                <span>/</span>
+                <span>e-mail</span>
+            </div>
+        </aside>
+        <section
+            class="ml-[33.333%] h-screen w-[66.666%] md:ml-[30%] md:w-[70%]"
+        >
+            <div class="hidden h-full gap-6 md:flex">
+                <div class="group relative h-[100dvh] w-1/2 overflow-hidden">
+                    <ul
+                        class="flex flex-col gap-6 will-change-transform animate-[marquee-vertical_60s_linear_infinite] group-hover:[animation-play-state:paused]"
+                    >
+                        {
+                            marqueeItems.map((item) => (
+                                <li
+                                    class="flex flex-col"
+                                    style={`width: ${item.width}%`}
+                                >
+                                    <img
+                                        class="block h-auto w-full object-contain"
+                                        src={item.img.src}
+                                        alt={item.title}
+                                    />
+                                    <p class="text-[12px] leading-6 whitespace-nowrap overflow-hidden text-ellipsis">
+                                        {item.title}
+                                    </p>
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </div>
+                <div class="group relative h-[100dvh] w-1/2 overflow-hidden">
+                    <ul
+                        class="flex flex-col gap-6 will-change-transform animate-[marquee-vertical_60s_linear_infinite] group-hover:[animation-play-state:paused]"
+                    >
+                        {
+                            marqueeItems.map((item) => (
+                                <li
+                                    class="flex flex-col self-end"
+                                    style={`width: ${item.width}%`}
+                                >
+                                    <img
+                                        class="block h-auto w-full object-contain"
+                                        src={item.img.src}
+                                        alt={item.title}
+                                    />
+                                    <p class="text-[12px] leading-6 whitespace-nowrap overflow-hidden text-ellipsis">
+                                        {item.title}
+                                    </p>
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </div>
+            </div>
+            <div class="h-full md:hidden">
+                <div class="group relative h-[100dvh] w-full overflow-hidden">
+                    <ul
+                        class="flex flex-col gap-6 will-change-transform animate-[marquee-vertical_26s_linear_infinite] group-hover:[animation-play-state:paused]"
+                    >
+                        {
+                            marqueeItems.map((item) => (
+                                <li
+                                    class="flex flex-col self-end"
+                                    style={`width: ${item.width}%`}
+                                >
+                                    <img
+                                        class="block h-auto w-full object-contain"
+                                        src={item.img.src}
+                                        alt={item.title}
+                                    />
+                                    <p class="text-[12px] leading-6 whitespace-nowrap overflow-hidden text-ellipsis">
+                                        {item.title}
+                                    </p>
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+</BaseLayout>
