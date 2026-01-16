@@ -19,7 +19,9 @@ const titleClassName = [
 ---
 
 <li class={liClassName} style={`width: ${item.width}%`}>
-    <div class="relative h-full w-full">
+    <div
+        class="relative h-full w-full overflow-hidden flex items-center justify-center"
+    >
         <Image
             class={imgClassName}
             src={item.img}
