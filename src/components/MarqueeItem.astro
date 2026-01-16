@@ -1,0 +1,24 @@
+---
+const { item, liClass = "" } = Astro.props;
+
+const liClassName = ["flex flex-col relative group/item", liClass]
+    .filter(Boolean)
+    .join(" ");
+const imgClassName = [
+    "block h-auto w-full",
+    "group-hover/item:brightness-30 group-hover/item:grayscale-100",
+    "transition-all duration-300",
+].join(" ");
+const titleClassName = [
+    "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+    "opacity-0 group-hover/item:opacity-100 transition-opacity duration-300",
+    "text-[12px] leading-6 whitespace-nowrap overflow-hidden text-ellipsis",
+].join(" ");
+---
+
+<li class={liClassName} style={`width: ${item.width}%`}>
+    <div class="relative h-full w-full">
+        <img class={imgClassName} src={item.img.src} alt={item.title} />
+    </div>
+    <p class={titleClassName}>{item.title}</p>
+</li>

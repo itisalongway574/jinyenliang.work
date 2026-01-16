@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import MarqueeItem from "../components/MarqueeItem.astro";
 import "../styles/global.css";
 import img1 from "../assets/img-1.jpg";
 import img2 from "../assets/img-2.jpg";
@@ -37,73 +38,43 @@ const marqueeItems = [...items, ...items];
             class="ml-[33.333%] h-screen w-[66.666%] md:ml-[30%] md:w-[70%]"
         >
             <div class="hidden h-full gap-6 md:flex">
-                <div class="group relative h-[100dvh] w-1/2 overflow-hidden">
+                <div
+                    class="group/marquee relative h-[100dvh] w-1/2 overflow-hidden"
+                >
                     <ul
-                        class="flex flex-col gap-6 will-change-transform animate-[marquee-vertical_60s_linear_infinite] group-hover:[animation-play-state:paused]"
+                        class="flex flex-col gap-6 will-change-transform animate-[marquee-vertical_60s_linear_infinite] group-hover/marquee:[animation-play-state:paused]"
                     >
                         {
                             marqueeItems.map((item) => (
-                                <li
-                                    class="flex flex-col"
-                                    style={`width: ${item.width}%`}
-                                >
-                                    <img
-                                        class="block h-auto w-full object-contain"
-                                        src={item.img.src}
-                                        alt={item.title}
-                                    />
-                                    <p class="text-[12px] leading-6 whitespace-nowrap overflow-hidden text-ellipsis">
-                                        {item.title}
-                                    </p>
-                                </li>
+                                <MarqueeItem item={item} />
                             ))
                         }
                     </ul>
                 </div>
-                <div class="group relative h-[100dvh] w-1/2 overflow-hidden">
+                <div
+                    class="group/marquee relative h-[100dvh] w-1/2 overflow-hidden"
+                >
                     <ul
-                        class="flex flex-col gap-6 will-change-transform animate-[marquee-vertical_60s_linear_infinite] group-hover:[animation-play-state:paused]"
+                        class="flex flex-col gap-6 will-change-transform animate-[marquee-vertical_60s_linear_infinite] group-hover/marquee:[animation-play-state:paused]"
                     >
                         {
                             marqueeItems.map((item) => (
-                                <li
-                                    class="flex flex-col self-end"
-                                    style={`width: ${item.width}%`}
-                                >
-                                    <img
-                                        class="block h-auto w-full object-contain"
-                                        src={item.img.src}
-                                        alt={item.title}
-                                    />
-                                    <p class="text-[12px] leading-6 whitespace-nowrap overflow-hidden text-ellipsis">
-                                        {item.title}
-                                    </p>
-                                </li>
+                                <MarqueeItem item={item} liClass="self-end" />
                             ))
                         }
                     </ul>
                 </div>
             </div>
             <div class="h-full md:hidden">
-                <div class="group relative h-[100dvh] w-full overflow-hidden">
+                <div
+                    class="group/marquee relative h-[100dvh] w-full overflow-hidden"
+                >
                     <ul
-                        class="flex flex-col gap-6 will-change-transform animate-[marquee-vertical_26s_linear_infinite] group-hover:[animation-play-state:paused]"
+                        class="flex flex-col gap-6 will-change-transform animate-[marquee-vertical_26s_linear_infinite] group-hover/marquee:[animation-play-state:paused]"
                     >
                         {
                             marqueeItems.map((item) => (
-                                <li
-                                    class="flex flex-col self-end"
-                                    style={`width: ${item.width}%`}
-                                >
-                                    <img
-                                        class="block h-auto w-full object-contain"
-                                        src={item.img.src}
-                                        alt={item.title}
-                                    />
-                                    <p class="text-[12px] leading-6 whitespace-nowrap overflow-hidden text-ellipsis">
-                                        {item.title}
-                                    </p>
-                                </li>
+                                <MarqueeItem item={item} liClass="self-end" />
                             ))
                         }
                     </ul>
