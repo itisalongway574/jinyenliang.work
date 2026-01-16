@@ -1,0 +1,31 @@
+---
+import MarqueeItem from "./MarqueeItem.astro";
+
+const {
+    items = [],
+    dataMarquee = "",
+    liClass = "",
+    wrapperClass = "",
+    listClass = "",
+} = Astro.props;
+
+const wrapperClassName = [
+    "group/marquee relative h-[100dvh] w-1/2 overflow-hidden",
+    wrapperClass,
+]
+    .filter(Boolean)
+    .join(" ");
+const listClassName = ["flex flex-col gap-6 will-change-transform", listClass]
+    .filter(Boolean)
+    .join(" ");
+---
+
+<div class={wrapperClassName} data-marquee={dataMarquee}>
+    <div class="js-marquee-css marquee-wheel will-change-transform">
+        <ul class={listClassName}>
+            {items.map((item) => (
+                <MarqueeItem item={item} liClass={liClass} />
+            ))}
+        </ul>
+    </div>
+</div>

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import MarqueeColumn from "../components/MarqueeColumn.astro";
 import MarqueeItem from "../components/MarqueeItem.astro";
 import "../styles/global.css";
 import img1 from "../assets/img-1.jpg";
@@ -7,26 +8,16 @@ import img2 from "../assets/img-2.jpg";
 import img3 from "../assets/img-3.jpg";
 import img4 from "../assets/img-4.jpg";
 import img5 from "../assets/img-5.jpg";
+import { createMarqueeItems } from "../utils/marqueeData.js";
+import marqueeControllerUrl from "../scripts/marqueeController.js?url";
 
 // 來源圖片池：後續可替換為資料來源或 CMS
 const images = [img1, img2, img3, img4, img5];
 // 總項目數（桌機會分成左右兩欄，手機合併）
 const totalItems = 20;
-// 產生示意資料（每筆包含圖片、標題與寬度）
-const items = Array.from({ length: totalItems }, (_, index) => ({
-    img: images[index % images.length],
-    title: `This is the ${index + 1} project`,
-    width: Math.floor(50 + Math.random() * 51),
-}));
-// 桌機左右欄分半
-const splitIndex = Math.floor(items.length / 2);
-const leftItems = items.slice(0, splitIndex);
-const rightItems = items.slice(splitIndex);
-// marquee 以「兩套同樣的 item」形成循環
-const marqueeItemsLeft = [...leftItems, ...leftItems];
-const marqueeItemsRight = [...rightItems, ...rightItems];
-// 手機版合併成同一欄
-const marqueeItemsMobile = [...items, ...items];
+// 資料層：生成清單與分欄結果
+const { marqueeItemsLeft, marqueeItemsRight, marqueeItemsMobile } =
+    createMarqueeItems({ images, totalItems });
 ---
 
 <BaseLayout>
@@ -55,42 +46,13 @@ const marqueeItemsMobile = [...items, ...items];
                 data-marquee-group="desktop"
             >
                 <!-- 左欄：自動往上，wheel 向下時會反向 -->
-                <div
-                    class="group/marquee relative h-[100dvh] w-1/2 overflow-hidden"
-                    data-marquee="css"
-                >
-                    <div
-                        class="js-marquee-css marquee-wheel will-change-transform"
-                    >
-                        <ul class="flex flex-col gap-6 will-change-transform">
-                            {
-                                marqueeItemsLeft.map((item) => (
-                                    <MarqueeItem item={item} />
-                                ))
-                            }
-                        </ul>
-                    </div>
-                </div>
+                <MarqueeColumn items={marqueeItemsLeft} dataMarquee="css" />
                 <!-- 右欄：自動往下，wheel 向下時會反向 -->
-                <div
-                    class="group/marquee relative h-[100dvh] w-1/2 overflow-hidden"
-                    data-marquee="css-reverse"
-                >
-                    <div
-                        class="js-marquee-css marquee-wheel will-change-transform"
-                    >
-                        <ul class="flex flex-col gap-6 will-change-transform">
-                            {
-                                marqueeItemsRight.map((item) => (
-                                    <MarqueeItem
-                                        item={item}
-                                        liClass="self-end"
-                                    />
-                                ))
-                            }
-                        </ul>
-                    </div>
-                </div>
+                <MarqueeColumn
+                    items={marqueeItemsRight}
+                    dataMarquee="css-reverse"
+                    liClass="self-end"
+                />
             </div>
             <!-- 手機版：純 CSS animation，維持合併清單 -->
             <div class="h-full md:hidden">
@@ -110,242 +72,42 @@ const marqueeItemsMobile = [...items, ...items];
             </div>
         </section>
     </main>
-    <script>
-        // @ts-nocheck
-        // 這段為純 JS，不做 TS 檢查
-        // DEBUG: 可在 console 設定 window.__MARQUEE_DEBUG__ = true
-        const DEBUG = Boolean(/** @type {any} */ (window).__MARQUEE_DEBUG__);
-        // wheel/drag/touch 影響係數與慣性參數
-        const WHEEL_FORCE = 0.03;
-        const FRICTION = 0.9;
-        const MAX_VELOCITY = 2.2;
-        // 自動播放完整一輪的時長（毫秒）
-        const DURATION = 60000;
+    <script type="module" src={marqueeControllerUrl}></script>
 
-        /**
-         * @param {number} value
-         * @param {number} max
-         */
-        // 將數值包回 0 ~ max 的範圍，避免進度無限累積
-        const wrapValue = (value, max) => {
-            if (!max) return 0;
-            return ((value % max) + max) % max;
-        };
-
-        // 速度夾限，避免瞬間過快
-        const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-
-        // 確保清單高度至少大於視窗高度 * 2，避免循環時出現空白
-        const ensureLoopHeight = (wrapper, list) => {
-            const minHeight = wrapper.clientHeight * 2;
-            let guard = 0;
-            while (list.scrollHeight < minHeight && guard < 5) {
-                const items = Array.from(list.children);
-                const fragment = document.createDocumentFragment();
-                items.forEach((item) =>
-                    fragment.appendChild(item.cloneNode(true)),
-                );
-                list.appendChild(fragment);
-                guard += 1;
-            }
-            if (DEBUG) {
-                console.log("[marquee-css] ensure height", {
-                    height: list.scrollHeight,
-                    minHeight,
-                });
-            }
-        };
-
-        /**
-         * @param {HTMLElement | null} root
-         * @param {number} direction
-         */
-        // 建立單欄控制器：保存進度、速度、方向與 DOM 參考
-        const createMarqueeController = (root, autoDirection = 1) => {
-            if (!root) return null;
-            const wrapper = root.querySelector(".js-marquee-css");
-            const list = wrapper?.querySelector("ul");
-            if (!wrapper || !list) return null;
-
-            ensureLoopHeight(wrapper, list);
-
-            const controller = {
-                wrapper,
-                list,
-                // 自動播放方向（1: 往下, -1: 往上）
-                autoDirection,
-                // wheel/drag/touch 方向與自動相反
-                wheelDirection: autoDirection * -1,
-                maxOffset: 0,
-                offset: 0,
-                // wheel/drag/touch 造成的額外速度
-                velocity: 0,
-                // 自動播放速度（px/ms）
-                autoSpeed: 0,
-            };
-
-            const updateMetrics = () => {
-                controller.maxOffset = list.scrollHeight / 2;
-                controller.offset = wrapValue(
-                    controller.offset,
-                    controller.maxOffset,
-                );
-                controller.autoSpeed = controller.maxOffset / DURATION;
-                wrapper.style.setProperty(
-                    "--marquee-offset",
-                    `${-controller.offset}px`,
-                );
-                if (DEBUG) {
-                    console.log("[marquee-css] metrics", {
-                        maxOffset: controller.maxOffset,
-                    });
-                }
-            };
-
-            window.addEventListener("resize", updateMetrics);
-            if ("ResizeObserver" in window) {
-                const ro = new ResizeObserver(updateMetrics);
-                ro.observe(list);
-            } else {
-                window.addEventListener("load", updateMetrics);
-            }
-
-            updateMetrics();
-            return controller;
-        };
-
-        const init = () => {
-            const group = document.body;
-            if (!group) return;
-
-            // 左右欄控制器（方向相反）
-            const controllers = [
-                createMarqueeController(
-                    document.querySelector('[data-marquee="css"]'),
-                    1,
-                ),
-                createMarqueeController(
-                    document.querySelector('[data-marquee="css-reverse"]'),
-                    -1,
-                ),
-            ].filter(Boolean);
-
-            if (!controllers.length) return;
-
-            // 將 wheel/drag/touch 的垂直位移套用到兩欄（方向相反）
-            const applyDelta = (deltaY) => {
-                controllers.forEach((controller) => {
-                    controller.velocity = clamp(
-                        controller.velocity +
-                            deltaY * WHEEL_FORCE * controller.wheelDirection,
-                        -MAX_VELOCITY,
-                        MAX_VELOCITY,
-                    );
-                });
-                if (!rafId) rafId = requestAnimationFrame(tick);
-            };
-
-            /** @type {number | null} */
-            let rafId = null;
-            let lastTime = 0;
-
-            // 每一幀：自動播放 + 慣性速度
-            const tick = (now) => {
-                rafId = null;
-                if (!lastTime) lastTime = now;
-                const delta = Math.min(now - lastTime, 50);
-                lastTime = now;
-                let active = false;
-                controllers.forEach((controller) => {
-                    if (!controller.maxOffset) return;
-                    const baseMove =
-                        controller.autoSpeed * controller.autoDirection * delta;
-                    const wheelMove = controller.velocity * delta;
-                    controller.offset = wrapValue(
-                        controller.offset + baseMove + wheelMove,
-                        controller.maxOffset,
-                    );
-                    controller.velocity *= Math.pow(FRICTION, delta / 16.67);
-                    controller.wrapper.style.setProperty(
-                        "--marquee-offset",
-                        `${-controller.offset}px`,
-                    );
-                    active = true;
-                });
-
-                if (active) rafId = requestAnimationFrame(tick);
-            };
-
-            /** @param {WheelEvent} event */
-            // wheel 事件
-            const onWheel = (event) => {
-                event.preventDefault();
-                applyDelta(event.deltaY);
-            };
-
-            // touch 事件（手機）
-            let touchLastY = 0;
-            const onTouchStart = (event) => {
-                const touch = event.touches?.[0];
-                if (!touch) return;
-                touchLastY = touch.clientY;
-            };
-            const onTouchMove = (event) => {
-                const touch = event.touches?.[0];
-                if (!touch) return;
-                event.preventDefault();
-                const deltaY = touchLastY - touch.clientY;
-                touchLastY = touch.clientY;
-                applyDelta(deltaY);
-            };
-
-            // drag 事件（桌機滑鼠）
-            let isDragging = false;
-            let dragLastY = 0;
-            const onPointerDown = (event) => {
-                if (event.pointerType !== "mouse") return;
-                isDragging = true;
-                dragLastY = event.clientY;
-                document.body.classList.add("is-dragging");
-            };
-            const onPointerMove = (event) => {
-                if (!isDragging) return;
-                event.preventDefault();
-                const deltaY = dragLastY - event.clientY;
-                dragLastY = event.clientY;
-                applyDelta(deltaY);
-            };
-            const onPointerUp = () => {
-                isDragging = false;
-                document.body.classList.remove("is-dragging");
-            };
-
-            const onDragStart = (event) => {
-                const target = event.target;
-                if (target && target.tagName === "IMG") {
-                    event.preventDefault();
-                }
-            };
-
-            group.addEventListener("wheel", onWheel, { passive: false });
-            group.addEventListener("touchstart", onTouchStart, {
-                passive: true,
-            });
-            group.addEventListener("touchmove", onTouchMove, {
-                passive: false,
-            });
-            group.addEventListener("dragstart", onDragStart);
-            group.addEventListener("pointerdown", onPointerDown);
-            window.addEventListener("pointerup", onPointerUp);
-            window.addEventListener("pointercancel", onPointerUp);
-            window.addEventListener("pointermove", onPointerMove);
-            if (!rafId) rafId = requestAnimationFrame(tick);
-        };
-
-        if (document.readyState === "loading") {
-            document.addEventListener("DOMContentLoaded", init);
-        } else {
-            init();
+    <style is:global>
+        .is-dragging,
+        .is-dragging * {
+            cursor: grabbing;
         }
-    </script>
+
+        .marquee-drag-area {
+            cursor: grab;
+        }
+
+        .marquee-no-drag {
+            -webkit-user-drag: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        @layer utilities {
+            @keyframes marquee-vertical {
+                0% {
+                    transform: translateY(0);
+                }
+
+                100% {
+                    transform: translateY(-50%);
+                }
+            }
+
+            .marquee-wheel {
+                transform: translateY(var(--marquee-offset, 0px));
+            }
+
+            .marquee-reverse {
+                animation-direction: reverse;
+            }
+        }
+    </style>
 </BaseLayout>
