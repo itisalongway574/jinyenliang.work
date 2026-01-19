@@ -297,7 +297,7 @@ const initMarquee = ({
         const touch = event.touches?.[0];
         if (!touch) return;
         event.preventDefault();
-        const deltaY = touchLastY - touch.clientY;
+        const deltaY = touch.clientY - touchLastY;
         touchLastY = touch.clientY;
         applyDelta(deltaY);
     };

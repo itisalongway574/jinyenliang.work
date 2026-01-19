@@ -205,7 +205,7 @@ const rightTranslate = (Math.random() * 80 - 90).toFixed(2);
             }
         };
 
-        const activityEvents = ["mousemove"];
+        const activityEvents = ["mousemove", "touchstart", "touchmove"];
         activityEvents.forEach((eventName) => {
             window.addEventListener(eventName, onUserActive, { passive: true });
         });
