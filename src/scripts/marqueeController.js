@@ -194,6 +194,7 @@ const initMarquee = ({
     // 將輸入的位移量轉成速度變化（會被摩擦力逐步衰減）
     // wheelDirection 讓左右欄的「滾動方向」互為反向
     const applyDelta = (deltaY) => {
+        if (isPaused) return;
         controllers.forEach((controller) => {
             controller.velocity = clamp(
                 controller.velocity +
@@ -208,10 +209,12 @@ const initMarquee = ({
     let rafId = null;
     // lastTime 讓每次 tick 取得實際時間差，避免速度受幀率影響
     let lastTime = 0;
+    let isPaused = true;
 
     // 單一動畫迴圈：自動位移 + 使用者輸入速度
     const tick = (now) => {
         rafId = null;
+        if (isPaused) return;
         if (!lastTime) lastTime = now;
         // delta 為兩幀間隔，最多 50ms 避免分頁切換造成暴衝
         const delta = Math.min(now - lastTime, 50);
@@ -240,6 +243,42 @@ const initMarquee = ({
 
         if (active) rafId = requestAnimationFrame(tick);
     };
+
+    const pauseMarquee = () => {
+        isPaused = true;
+        controllers.forEach((controller) => {
+            controller.velocity = 0;
+        });
+        if (rafId) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+        }
+    };
+
+    const resumeMarquee = () => {
+        if (!isPaused) return;
+        isPaused = false;
+        lastTime = 0;
+        if (!rafId) rafId = requestAnimationFrame(tick);
+    };
+
+    const onOverlayStateChange = (event) => {
+        const active = Boolean(event?.detail?.active);
+        if (active) {
+            pauseMarquee();
+        } else {
+            resumeMarquee();
+        }
+    };
+    window.addEventListener("construction:overlay", onOverlayStateChange);
+    if (typeof window !== "undefined") {
+        const initialActive = Boolean(window.__CONSTRUCTION_OVERLAY_ACTIVE__);
+        if (initialActive) {
+            pauseMarquee();
+        } else {
+            resumeMarquee();
+        }
+    }
 
     // 滾輪：以 deltaY 影響速度
     const onWheel = (event) => {

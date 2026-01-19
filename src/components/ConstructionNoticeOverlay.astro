@@ -8,17 +8,17 @@ const rightTranslate = (Math.random() * 80 - 90).toFixed(2);
 ---
 
 <div
-    class="construction-overlay pointer-events-none fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+    class="construction-notice pointer-events-none fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
 >
     <div class="absolute left-0 top-1/2 z-50 w-full text-black">
         <div
-            class="construction-track scale-150"
+            class="construction-notice-track scale-150"
             style={`--marquee-rotate: ${leftRotate}deg; --marquee-translate: ${leftTranslate}%;`}
         >
             <div
-                class="construction-marquee bg-yellow-400 py-1 font-medium uppercase tracking-wide md:text-base"
+                class="construction-notice-row bg-yellow-400 py-1 font-medium uppercase tracking-wide md:text-base"
             >
-                <div class="construction-marquee-track flex whitespace-nowrap">
+                <div class="construction-notice-content flex whitespace-nowrap">
                     {
                         Array.from({ length: repeatCount }).map(() => (
                             <span class="px-1 text-[10px]">{message}</span>
@@ -28,13 +28,13 @@ const rightTranslate = (Math.random() * 80 - 90).toFixed(2);
             </div>
         </div>
         <div
-            class="construction-track scale-150"
+            class="construction-notice-track scale-150"
             style={`--marquee-rotate: ${rightRotate}deg; --marquee-translate: ${rightTranslate}%;`}
         >
             <div
-                class="construction-marquee bg-yellow-400 py-1 font-medium uppercase tracking-wide md:text-base"
+                class="construction-notice-row bg-yellow-400 py-1 font-medium uppercase tracking-wide md:text-base"
             >
-                <div class="construction-marquee-track flex whitespace-nowrap">
+                <div class="construction-notice-content flex whitespace-nowrap">
                     {
                         Array.from({ length: repeatCount }).map(() => (
                             <span class="px-1 text-[10px]">{message}</span>
@@ -47,7 +47,7 @@ const rightTranslate = (Math.random() * 80 - 90).toFixed(2);
 </div>
 
 <style>
-    @keyframes construction-marquee-in {
+    @keyframes construction-notice-in {
         0% {
             transform: translateY(100%);
         }
@@ -56,7 +56,7 @@ const rightTranslate = (Math.random() * 80 - 90).toFixed(2);
         }
     }
 
-    @keyframes construction-marquee-out {
+    @keyframes construction-notice-out {
         0% {
             transform: translateY(0%);
         }
@@ -65,7 +65,7 @@ const rightTranslate = (Math.random() * 80 - 90).toFixed(2);
         }
     }
 
-    @keyframes construction-mask-in {
+    @keyframes construction-notice-mask-in {
         0% {
             opacity: 0;
         }
@@ -74,7 +74,7 @@ const rightTranslate = (Math.random() * 80 - 90).toFixed(2);
         }
     }
 
-    @keyframes construction-mask-out {
+    @keyframes construction-notice-mask-out {
         0% {
             opacity: 1;
         }
@@ -83,64 +83,71 @@ const rightTranslate = (Math.random() * 80 - 90).toFixed(2);
         }
     }
 
-    .construction-overlay {
+    .construction-notice {
         opacity: 1;
         will-change: opacity;
     }
 
-    .construction-overlay.is-entering {
-        animation: construction-mask-in 0.5s ease-out both;
+    .construction-notice.is-entering {
+        animation: construction-notice-mask-in 0.5s ease-out both;
     }
 
-    .construction-overlay.is-leaving {
-        animation: construction-mask-out 0.5s ease-in both;
+    .construction-notice.is-leaving {
+        animation: construction-notice-mask-out 0.5s ease-in both;
     }
 
-    .construction-track {
+    .construction-notice-track {
         transform: translateY(var(--marquee-translate, -50%))
             rotate(var(--marquee-rotate, 0deg));
         overflow: hidden;
     }
 
-    .construction-marquee {
+    .construction-notice-row {
         overflow: hidden;
     }
 
-    .construction-marquee.is-entering {
-        animation: construction-marquee-in 0.8s ease-out both;
+    .construction-notice-row.is-entering {
+        animation: construction-notice-in 0.8s ease-out both;
     }
 
-    .construction-marquee.is-leaving {
-        animation: construction-marquee-out 0.8s ease-in both;
+    .construction-notice-row.is-leaving {
+        animation: construction-notice-out 0.8s ease-in both;
     }
 
-    .construction-marquee-track {
+    .construction-notice-content {
         width: max-content;
     }
 </style>
 
 <script type="module">
     const IDLE_DELAY = 10000;
-    const EXIT_DELAY = 3000;
+    const EXIT_DELAY = 2000;
     const STAGGER_DELAY = 200;
 
-    const initConstructionMarquee = () => {
-        if (window.__constructionMarqueeInit) {
+    const initConstructionNoticeOverlay = () => {
+        if (window.__constructionNoticeInit) {
             return;
         }
-        window.__constructionMarqueeInit = true;
+        window.__constructionNoticeInit = true;
 
-        const marquees = Array.from(
-            document.querySelectorAll(".construction-marquee"),
+        const rows = Array.from(
+            document.querySelectorAll(".construction-notice-row"),
         );
-        const overlay = document.querySelector(".construction-overlay");
-        if (!marquees.length || !overlay) {
-            console.warn("[construction-marquee] 找不到 marquee");
+        const overlay = document.querySelector(".construction-notice");
+        if (!rows.length || !overlay) {
+            console.warn("[construction-notice] 找不到 notice");
             return;
         }
 
         let idleTimer = null;
         let exitTimer = null;
+
+        const broadcastOverlay = (active) => {
+            window.__CONSTRUCTION_OVERLAY_ACTIVE__ = active;
+            window.dispatchEvent(
+                new CustomEvent("construction:overlay", { detail: { active } }),
+            );
+        };
 
         const clearTimers = () => {
             if (idleTimer) window.clearTimeout(idleTimer);
@@ -150,23 +157,25 @@ const rightTranslate = (Math.random() * 80 - 90).toFixed(2);
         };
 
         const setEntering = () => {
+            broadcastOverlay(true);
             overlay.classList.remove("is-leaving");
             overlay.classList.add("is-entering");
-            marquees.forEach((marquee, index) => {
+            rows.forEach((row, index) => {
                 window.setTimeout(() => {
-                    marquee.classList.remove("is-leaving");
-                    marquee.classList.add("is-entering");
+                    row.classList.remove("is-leaving");
+                    row.classList.add("is-entering");
                 }, index * STAGGER_DELAY);
             });
         };
 
         const setLeaving = () => {
+            broadcastOverlay(false);
             overlay.classList.remove("is-entering");
             overlay.classList.add("is-leaving");
-            marquees.forEach((marquee, index) => {
+            rows.forEach((row, index) => {
                 window.setTimeout(() => {
-                    marquee.classList.remove("is-entering");
-                    marquee.classList.add("is-leaving");
+                    row.classList.remove("is-entering");
+                    row.classList.add("is-leaving");
                 }, index * STAGGER_DELAY);
             });
         };
@@ -196,13 +205,7 @@ const rightTranslate = (Math.random() * 80 - 90).toFixed(2);
             }
         };
 
-        const activityEvents = [
-            "mousemove",
-            "mousedown",
-            "keydown",
-            "touchstart",
-            "wheel",
-        ];
+        const activityEvents = ["mousemove"];
         activityEvents.forEach((eventName) => {
             window.addEventListener(eventName, onUserActive, { passive: true });
         });
@@ -210,17 +213,21 @@ const rightTranslate = (Math.random() * 80 - 90).toFixed(2);
         window.addEventListener("blur", scheduleIdle);
 
         clearTimers();
-        marquees.forEach((marquee) => {
-            marquee.classList.remove("is-entering", "is-leaving");
+        rows.forEach((row) => {
+            row.classList.remove("is-entering", "is-leaving");
         });
         overlay.classList.remove("is-entering", "is-leaving");
+        broadcastOverlay(true);
         scheduleExit();
         scheduleIdle();
     };
 
     if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initConstructionMarquee);
+        document.addEventListener(
+            "DOMContentLoaded",
+            initConstructionNoticeOverlay,
+        );
     } else {
-        initConstructionMarquee();
+        initConstructionNoticeOverlay();
     }
 </script>
