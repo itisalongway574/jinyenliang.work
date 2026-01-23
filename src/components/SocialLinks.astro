@@ -6,7 +6,9 @@ const links = [
 ];
 ---
 
-<div class="flex gap-1 text-[clamp(10px,0.875vw,14px)]">
+<div
+    class="fixed z-100 bottom-4 left-1/2 -translate-x-1/2 flex gap-1 text-[clamp(10px,0.875vw,14px)]"
+>
     {
         links.map((link, index) => (
             <>
@@ -16,10 +18,70 @@ const links = [
                     target="_blank"
                     rel="noreferrer"
                 >
-                    <span class="flex flex-col transition-transform duration-300 ease-out group-hover:-translate-y-1/2">
-                        <span class="block">{link.label}</span>
-                        <span class="block">{link.label}</span>
-                    </span>
+                    <div class="flex flex-col transition-transform duration-300 ease-out group-hover:-translate-y-1/2">
+                        <div class="flex gap-1 items-center">
+                            <svg
+                                width="12"
+                                height="12"
+                                viewBox="0 0 12 12"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <g clip-path="url(#clip0_614_92)">
+                                    <path
+                                        d="M12 11L12 1C12 0.450001 11.55 5.04867e-07 11 4.80825e-07L1 4.37114e-08C0.450001 1.96701e-08 5.04866e-07 0.45 4.80825e-07 1L4.37112e-08 11C1.96699e-08 11.55 0.45 12 1 12L11 12C11.55 12 12 11.55 12 11Z"
+                                        fill="#395DFF"
+                                    />
+                                    <path
+                                        d="M7.64484 8.35501L4.49984 5.21001L4.49984 7.00501C4.49984 7.28001 4.27484 7.50501 3.99984 7.50501C3.72484 7.50501 3.49984 7.28001 3.49984 7.00501L3.49984 4.00501C3.49984 3.73001 3.72484 3.50501 3.99984 3.50501L6.99984 3.50501C7.27484 3.50501 7.49984 3.73001 7.49984 4.00501C7.49984 4.28001 7.27484 4.50501 6.99984 4.50501L5.20484 4.50501L8.34984 7.65001C8.54484 7.84501 8.54484 8.16001 8.34984 8.36001C8.15484 8.55501 7.83984 8.55501 7.64484 8.36001L7.64484 8.35501Z"
+                                        fill="white"
+                                    />
+                                </g>
+                                <defs>
+                                    <clipPath id="clip0_614_92">
+                                        <rect
+                                            width="12"
+                                            height="12"
+                                            fill="white"
+                                            transform="translate(12) rotate(90)"
+                                        />
+                                    </clipPath>
+                                </defs>
+                            </svg>
+                            <span class="block">{link.label}</span>
+                        </div>
+                        <div class="flex gap-1 items-center">
+                            <svg
+                                width="12"
+                                height="12"
+                                viewBox="0 0 12 12"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <g clip-path="url(#clip0_614_92)">
+                                    <path
+                                        d="M12 11L12 1C12 0.450001 11.55 5.04867e-07 11 4.80825e-07L1 4.37114e-08C0.450001 1.96701e-08 5.04866e-07 0.45 4.80825e-07 1L4.37112e-08 11C1.96699e-08 11.55 0.45 12 1 12L11 12C11.55 12 12 11.55 12 11Z"
+                                        fill="#395DFF"
+                                    />
+                                    <path
+                                        d="M7.64484 8.35501L4.49984 5.21001L4.49984 7.00501C4.49984 7.28001 4.27484 7.50501 3.99984 7.50501C3.72484 7.50501 3.49984 7.28001 3.49984 7.00501L3.49984 4.00501C3.49984 3.73001 3.72484 3.50501 3.99984 3.50501L6.99984 3.50501C7.27484 3.50501 7.49984 3.73001 7.49984 4.00501C7.49984 4.28001 7.27484 4.50501 6.99984 4.50501L5.20484 4.50501L8.34984 7.65001C8.54484 7.84501 8.54484 8.16001 8.34984 8.36001C8.15484 8.55501 7.83984 8.55501 7.64484 8.36001L7.64484 8.35501Z"
+                                        fill="white"
+                                    />
+                                </g>
+                                <defs>
+                                    <clipPath id="clip0_614_92">
+                                        <rect
+                                            width="12"
+                                            height="12"
+                                            fill="white"
+                                            transform="translate(12) rotate(90)"
+                                        />
+                                    </clipPath>
+                                </defs>
+                            </svg>
+                            <span class="block">{link.label}</span>
+                        </div>
+                    </div>
                 </a>
                 {index < links.length - 1 && <span>/</span>}
             </>
