@@ -14,3 +14,7 @@ body {
 body {
 	overflow: hidden;
 }
+
+.debug {
+	outline: 1px solid red;
+}
