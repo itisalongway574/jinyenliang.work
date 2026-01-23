@@ -1,0 +1,28 @@
+---
+const links = [
+    { label: "instagram", href: "https://www.instagram.com/jinyenliang/" },
+    { label: "threads", href: "https://www.threads.com/@jinyenliang" },
+    { label: "e-mail", href: "mailto:wadejin1996@gmail.com" },
+];
+---
+
+<div class="flex gap-1 text-[clamp(10px,0.875vw,14px)]">
+    {
+        links.map((link, index) => (
+            <>
+                <a
+                    class="group relative inline-block h-[1.5em] overflow-hidden"
+                    href={link.href}
+                    target="_blank"
+                    rel="noreferrer"
+                >
+                    <span class="flex flex-col transition-transform duration-300 ease-out group-hover:-translate-y-1/2">
+                        <span class="block">{link.label}</span>
+                        <span class="block">{link.label}</span>
+                    </span>
+                </a>
+                {index < links.length - 1 && <span>/</span>}
+            </>
+        ))
+    }
+</div>
