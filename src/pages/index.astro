@@ -16,30 +16,34 @@ import marqueeControllerUrl from "../scripts/marqueeController.js?url";
     <main class="relative min-h-screen overflow-hidden">
         {/* <ConstructionNoticeOverlay /> */}
         <div
-            class="fixed z-10 landscape:z-0 top-6 left-1/2 -translate-x-1/2 text-[clamp(12px,1vw,16px)]"
+            class="fixed w-full text-center z-10 landscape:z-0 top-4 left-1/2 -translate-x-1/2 text-[clamp(12px,1vw,16px)]"
         >
             This website is under construction.
         </div>
         <div
-            class="fixed z-10 landscape:z-0 top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 space-y-2 text-center"
+            class="fixed z-10 landscape:z-0 top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 space-y-2 text-center flex flex-col items-center gap-20"
         >
-            <h1
-                class="text-[clamp(2rem,3.5vw,3rem)] text-pretty leading-[1] tracking-[-0.02em]"
-            >
-                jinyenliang.work
-            </h1>
-            <h2
-                class="text-[clamp(1.125rem,1.25vw,1.75rem)] leading-[1.2] tracking-[-0.01em]"
-            >
-                website design & development
-            </h2>
+            <h3 style="writing-mode: vertical-rl;">金彥良</h3>
+            <div class="space-y-2">
+                <h1
+                    class="text-[clamp(2rem,3.5vw,3rem)] text-pretty leading-[1] tracking-[-0.02em]"
+                >
+                    jinyenliang.work
+                </h1>
+                <h2
+                    class="text-[clamp(1.125rem,1.25vw,1.75rem)] leading-[1.2] tracking-[-0.01em]"
+                >
+                    website design & front-end
+                </h2>
+            </div>
+            <h3 style="writing-mode: vertical-rl;">網頁設計與前端</h3>
         </div>
         <SocialLinks />
         <!-- 作品marquee -->
         <section class="h-screen w-full">
             {/* 桌機左右欄：JS 控制進度 + wheel/drag/touch 共用邏輯 */}
             <div
-                class="marquee-drag-area hidden h-full gap-6 landscape:flex"
+                class="marquee-drag-area hidden h-full landscape:flex"
                 data-marquee-group="desktop"
             >
                 {/* 左欄：自動往上，wheel 向下時會反向 */}
