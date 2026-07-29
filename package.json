@@ -19,5 +19,11 @@
   },
   "devDependencies": {
     "astro-remove-comments": "^0.0.1"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
   }
 }
